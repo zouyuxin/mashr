@@ -11,7 +11,7 @@ See [Urbut et al](http://biorxiv.org/content/early/2017/05/09/096552)
 for details of the model and methods.
 
 Note that this R package is a refactoring of the code originally used
-to create results for the paper. The original package code is
+to create results for the paper. The original package code is 
 [here](http://github.com/stephenslab/mashr-paper).
 
 ## Quick Start
