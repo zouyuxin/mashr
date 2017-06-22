@@ -1,7 +1,5 @@
 library(mashr)
 
-# install.packages(repo=NULL,pkgs="~/git/mashr_0.1-18.tar.gz",type="source")
-#
 # For testing, load all packages listed in the "imports" field, and
 # load all the functions defined in the source files.
 # to overwrite the mashr package defaults.

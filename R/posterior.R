@@ -91,21 +91,32 @@ compute_posterior_matrices <-
 
       # Run the C implementation using the Rcpp interface and only a
       # single CPU.
-      res  <- calc_post_rcpp(t(data$Bhat),t(data$Shat),data$V,
-                             simplify2array(Ulist),t(posterior_weights))
-      lfsr <- compute_lfsr(res$post_neg,res$post_zero)
+      res <- calc_post_rcpp(t(data$Bhat),t(data$Shat),data$V,
+                            simplify2array(Ulist),t(posterior_weights))
     } else {
 
       # Run the multicore variant of the C implementation.
       #
       # First, assign each sample to a CPU, then compute the posterior
       # quantites for each set of assigned samples.
-      # TO DO.
+      J    <- nrow(data$Bhat)
+      rows <- distribute(1:J,mc.cores)
+      res  <- mclapply(rows,
+                       function (i) 
+                         calc_post_rcpp(t(data$Bhat[i,]),t(data$Shat[i,]),
+                                        data$V,simplify2array(Ulist),
+                                        t(posterior_weights)),
+                       mc.cores = mc.cores)
       
       # Aggregate the outputs from the individual CPUs.
-      # TO DO.
+      res <-
+        list(post_mean=do.call(rbind,lapply(res,function(x) x[["post_mean"]])),
+             post_sd  =do.call(rbind,lapply(res,function(x) x[["post_sd"]])),
+             post_zero=do.call(rbind,lapply(res,function(x) x[["post_zero"]])),
+             post_neg =do.call(rbind,lapply(res,function(x) x[["post_neg"]])))
     }
     
+    lfsr <- compute_lfsr(res$post_neg,res$post_zero)
     return(list(PosteriorMean = res$post_mean,
                 PosteriorSD   = res$post_sd,
                 lfdr          = res$post_zero,

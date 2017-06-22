@@ -1,8 +1,6 @@
 library(mashr)
 
-# install.packages(repo=NULL,pkgs="~/git/mashr_0.1-19.tar.gz",type="source")
-#
-## For testing, load all packages listed in the "imports" field, and
+# For testing, load all packages listed in the "imports" field, and
 # load all the functions defined in the source files.
 # to overwrite the mashr package defaults.
 #
@@ -22,7 +20,7 @@ library(mashr)
 # SCRIPT PARAMETERS.
 J  <- 1e4  # Number of samples.
 K  <- 10   # Number of dimensions/conditions.
-nc <- 20   # Number of CPUs ("cores") to use.
+nc <- 1    # Number of CPUs ("cores") to use.
 
 J <- ceiling(J/4)*4
 
@@ -41,6 +39,7 @@ weights     <- weights/rowSums(weights)
 cat(sprintf("Computing posterior matrices using %d cores.\n",nc))
 out.time <-
   system.time(out <- compute_posterior_matrices(mash_data,Ulist,weights,
-                                                algorithm.version = "Rcpp"))
+                                                algorithm.version = "Rcpp",
+                                                mc.cores = nc))
 cat(sprintf("Posterior computations took %0.2f seconds.\n",
             out.time["elapsed"]))
