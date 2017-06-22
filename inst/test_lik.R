@@ -6,6 +6,7 @@ library(mashr)
 # load all the functions defined in the source files.
 # to overwrite the mashr package defaults.
 #
+# source("../R/misc.R")
 # source("../R/mash.R")
 # source("../R/compute_covs.R")
 # source("../R/data2cov.R")
