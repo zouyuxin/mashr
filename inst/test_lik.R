@@ -1,6 +1,6 @@
 library(mashr)
 
-# install.packages(repo=NULL,pkgs="mashr_0.1-18.tar.gz",type="source")
+# install.packages(repo=NULL,pkgs="~/git/mashr_0.1-18.tar.gz",type="source")
 #
 # For testing, load all packages listed in the "imports" field, and
 # load all the functions defined in the source files.
@@ -11,7 +11,7 @@ library(mashr)
 # source("../R/data2cov.R")
 # source("../R/ed.R")
 # source("../R/get_functions.R")
-source("../R/likelihoods.R")
+# source("../R/likelihoods.R")
 # source("../R/opt.R")
 # source("../R/plots.R")
 # source("../R/posterior.R")
@@ -19,9 +19,13 @@ source("../R/likelihoods.R")
 # source("../R/simulations.R")
 
 # SCRIPT PARAMETERS.
-J <- 1e4
-K <- 10 
+J  <- 1e4  # Number of samples.
+K  <- 10   # Number of dimensions/conditions.
+nc <- 20   # Number of CPUs ("cores") to use.
+
 J <- ceiling(J/4)*4
+
+# Generate the error s.d.'s.
 s <- sqrt(rchisq(J*K,df = J-1)/(J-1))
 
 # Generate a simulated data set.
@@ -31,8 +35,10 @@ Ulist       <- cov_canonical(mash_data)
 Ulist       <- expand_cov(Ulist,1:100)
 
 # Compute the J x P likelihood matrix.
-cat(sprintf("Computing %d x %d likelihood matrix.\n",J,length(Ulist)))
+cat(sprintf("Computing %d x %d likelihood matrix using %d cores.\n",
+            J,length(Ulist),nc))
 out.time <- system.time(out <- calc_lik_matrix(mash_data,Ulist,log = TRUE,
-                                               algorithm.version = "Rcpp"))
+                                               algorithm.version = "Rcpp",
+                                               mc.cores = nc))
 cat(sprintf("Likelihood calculations took %0.2f seconds.\n",
             out.time["elapsed"]))

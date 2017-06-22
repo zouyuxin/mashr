@@ -46,6 +46,7 @@ calc_lik_vector <- function(bhat,V,Ulist,log = FALSE)
 #'
 #' @useDynLib mashr
 #'
+#' @importFrom parallel mclapply
 #' @importFrom Rcpp sourceCpp
 #' @importFrom Rcpp evalCpp
 #'
@@ -78,11 +79,31 @@ calc_lik_matrix <- function (data, Ulist, log = FALSE, mc.cores = 1,
   }
   else if (algorithm.version == "Rcpp") {
 
-    # Run the C implementation using the Rcpp interface.
-    res <- calc_lik_rcpp(t(data$Bhat),t(data$Shat),data$V,
-                         simplify2array(Ulist),log,
-                         is_common_cov(data))
-    res <- res$data
+    if (mc.cores == 1) {
+
+      # Run the C implementation using the Rcpp interface.
+      res <- calc_lik_rcpp(t(data$Bhat),t(data$Shat),data$V,
+                           simplify2array(Ulist),log,
+                           is_common_cov(data))
+      res <- res$data
+    } else {
+
+      # Run the multicare variant of the C implementation.
+      #
+      # First, assign each sample to a CPU, and compute the
+      # conditional likelihood values for each set of samples.
+      J    <- nrow(data$Bhat)
+      rows <- distribute(1:J,mc.cores)
+      res  <- mclapply(rows,
+                       function (i) 
+                         calc_lik_rcpp(t(data$Bhat[i,]),t(data$Shat[i,]),
+                                       data$V,simplify2array(Ulist),log,
+                                       is_common_cov(data))$data,
+                       mc.cores = mc.cores)
+
+      # Aggregate the outputs from the individual CPUs.
+      res <- do.call(rbind,res)
+    }
     
     # Get column names for R > 1.
     if (ncol(res) > 1)
