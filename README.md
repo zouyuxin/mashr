@@ -1,5 +1,10 @@
 # mashr: Multivariate Adaptive Shrinkage in R
 
+[![CRAN Status Badge](http://www.r-pkg.org/badges/version/mashr)](https://cran.r-project.org/package=mashr) 
+[![Travis Build Status](https://travis-ci.org/stephenslab/mashr.svg?branch=master)](https://travis-ci.org/stephenslab/mashr)
+[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/6xpn7vfe6tslm9wn?svg=true)](https://ci.appveyor.com/project/pcarbo/mashr)
+[![codecov](https://codecov.io/gh/stephenslab/mashr/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/mashr)
+
 *Welcome to mashr!* This package implements methods to estimate and
 test many effects in many conditions (or many effects on many
 outcomes).
@@ -8,7 +13,7 @@ The methods use Empirical Bayes methods to estimate patterns of
 similarity among conditions, and then exploit those patterns of
 similarity among conditions to improve accuracy of effect estimates.
 See [Urbut et al](http://biorxiv.org/content/early/2017/05/09/096552)
-for details of the model and methods.
+for details of the model and methods. 
 
 Note that this R package is a refactoring of the code originally used
 to create results for the paper. The original package code is 
@@ -52,14 +57,21 @@ the mashr package:
    build this package.
 
 5. Once you have installed all these packages, you can install and
-   load the most recent version of `mashr` available on Github. This
-   command will automatically retrieve and install version 2.1-19 of
-   the `ashr` package released on Github.
+   load the most recent version of `mashr` available on Github:
 
    ```R
    library(devtools)
    install_github("stephenslab/mashr")
    library(mashr)
+   ```
+
+   This command should automatically retrieve and install
+   version 2.1-19 of the `ashr` package released on Github. If it does
+   not, install ashr 2.1-19 separately using devtools:
+
+   ```R
+   library(devtools)
+   install_github("stephens999/ashr@v2.1-19")
    ```
 
    Alternatively, if you have cloned the repository locally, you can

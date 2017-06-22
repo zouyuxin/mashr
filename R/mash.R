@@ -14,7 +14,7 @@
 #' @param algorithm.version Indicates whether to use R or Rcpp version
 #' @param pi_thresh threshold below which mixture components are ignored in computing posterior summaries (to speed calculations by ignoring negligible components)
 #' @return a list with elements result, loglik and fitted_g
-#' @example
+#' @examples
 #' Bhat = matrix(rnorm(100),ncol=5) # create some simulated data
 #' Shat = matrix(rep(1,100),ncol=5)
 #' data = mashr::set_mash_data(Bhat,Shat)
@@ -76,12 +76,17 @@ mash = function(data,
   # Calculate likelihood matrix.
   if (verbose)
     cat(sprintf(" - Computing %d x %d likelihood matrix.\n",J,P))
-  if (add.mem.profile)
+  if (add.mem.profile) {
     out.time <- system.time(out.mem <- profmem::profmem({
-      lm <- calc_relative_lik_matrix(data,xUlist,algorithm.version)
+      # lm <- calc_lik_matrix(data,xUlist,algorithm.version)
+      lm <- calc_relative_lik_matrix(data,xUlist,log = TRUE,algorithm.version)
     },threshold = 1000))
-  else
-    out.time <- system.time(lm <- calc_relative_lik_matrix(data,xUlist,algorithm.version))
+  } else {
+    out.time <-
+      system.time(
+    # lm<-calc_lik_matrix(data,xUlist,log=TRUE,algorithm.version)
+    lm <- calc_relative_lik_matrix(data,xUlist,algorithm.version))
+  }
   if (verbose) {
     if (add.mem.profile)
       cat(sprintf(paste(" - Likelihood calculations allocated %0.2f MB",
@@ -92,7 +97,7 @@ mash = function(data,
       cat(sprintf(" - Likelihood calculations took %0.2f seconds.\n",
                   out.time["elapsed"]))
   }
-
+    
   # Main fitting procedure.
   if(!fixg){
     if (verbose)
