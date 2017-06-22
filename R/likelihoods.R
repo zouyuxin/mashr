@@ -78,17 +78,17 @@ calc_lik_matrix <- function (data, Ulist, log = FALSE, mc.cores = 1,
     return(res)
   }
   else if (algorithm.version == "Rcpp") {
-
     if (mc.cores == 1) {
 
-      # Run the C implementation using the Rcpp interface.
+      # Run the C implementation using the Rcpp interface and only a
+      # single CPU.
       res <- calc_lik_rcpp(t(data$Bhat),t(data$Shat),data$V,
                            simplify2array(Ulist),log,
                            is_common_cov(data))
       res <- res$data
     } else {
 
-      # Run the multicare variant of the C implementation.
+      # Run the multicore variant of the C implementation.
       #
       # First, assign each sample to a CPU, and compute the
       # conditional likelihood values for each set of samples.

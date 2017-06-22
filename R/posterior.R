@@ -46,6 +46,10 @@ posterior_mean_matrix <- function(Bhat, Vinv, U1){
 #' @param posterior_weights Vector containing the posterior
 #'     probability of each mixture component in Ulist for the data
 #'
+#' @param mc.cores The argument supplied to 
+#'     \code{\link[parallel]{mclapply}} specifying the number of cores
+#'     to use. Note that this is only has an effect for the Rcpp version.
+#'
 #' @param algorithm.version Indicates whether to use R or Rcpp version
 #'
 #' @return The return value is a list containing the following
@@ -72,7 +76,7 @@ posterior_mean_matrix <- function(Bhat, Vinv, U1){
 #'
 #' @export
 compute_posterior_matrices <-
-  function (data, Ulist, posterior_weights,
+  function (data, Ulist, posterior_weights, mc.cores = 1,
             algorithm.version = c("Rcpp","R")) {
   algorithm.version <- match.arg(algorithm.version)
 
@@ -83,11 +87,25 @@ compute_posterior_matrices <-
       compute_posterior_matrices_general_R(data, Ulist, posterior_weights)
     }
   } else if (algorithm.version == "Rcpp") {
+    if (mc.cores == 1) {
 
-    # Run the C implementation using the Rcpp interface.
-    res  <- calc_post_rcpp(t(data$Bhat),t(data$Shat),data$V,
-                           simplify2array(Ulist),t(posterior_weights))
-    lfsr <- compute_lfsr(res$post_neg,res$post_zero)
+      # Run the C implementation using the Rcpp interface and only a
+      # single CPU.
+      res  <- calc_post_rcpp(t(data$Bhat),t(data$Shat),data$V,
+                             simplify2array(Ulist),t(posterior_weights))
+      lfsr <- compute_lfsr(res$post_neg,res$post_zero)
+    } else {
+
+      # Run the multicore variant of the C implementation.
+      #
+      # First, assign each sample to a CPU, then compute the posterior
+      # quantites for each set of assigned samples.
+      # TO DO.
+      
+      # Aggregate the outputs from the individual CPUs.
+      # TO DO.
+    }
+    
     return(list(PosteriorMean = res$post_mean,
                 PosteriorSD   = res$post_sd,
                 lfdr          = res$post_zero,

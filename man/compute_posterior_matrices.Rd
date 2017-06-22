@@ -4,7 +4,7 @@
 \alias{compute_posterior_matrices}
 \title{Compute posterior matrices.}
 \usage{
-compute_posterior_matrices(data, Ulist, posterior_weights,
+compute_posterior_matrices(data, Ulist, posterior_weights, mc.cores = 1,
   algorithm.version = c("Rcpp", "R"))
 }
 \arguments{
@@ -15,6 +15,10 @@ compute_posterior_matrices(data, Ulist, posterior_weights,
 
 \item{posterior_weights}{Vector containing the posterior
 probability of each mixture component in Ulist for the data}
+
+\item{mc.cores}{The argument supplied to 
+\code{\link[parallel]{mclapply}} specifying the number of cores
+to use. Note that this is only has an effect for the Rcpp version.}
 
 \item{algorithm.version}{Indicates whether to use R or Rcpp version}
 }
