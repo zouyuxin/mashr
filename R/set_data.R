@@ -44,11 +44,29 @@ mash_set_data = function (Bhat, Shat = NULL, alpha = 0, df = Inf,
   }
   if (!is.null(pval)) {
     ## Shat and df have to be NULL
+    if (length(which(pval == 0))>0) {
+      stop("p-values cannot contain zero values (implying infinite z-scores)")
+    }
     Shat = Bhat / p2z(pval, Bhat)
   }
-  if(length(Shat)==1){Shat = matrix(Shat,nrow=nrow(Bhat),ncol=ncol(Bhat))}
-  if(!identical(dim(Bhat),dim(Shat))){stop("dimensions of Bhat and Shat must match")}
-
+  if(length(Shat)==1) {
+    Shat = matrix(Shat,nrow=nrow(Bhat),ncol=ncol(Bhat))
+  }
+  if(!identical(dim(Bhat),dim(Shat))){
+    stop("dimensions of Bhat and Shat must match")
+  }
+  if (length(which(is.nan(Bhat) | is.infinite(Bhat)))>0) {
+    stop("Bhat cannot contain NaN/Inf values")
+  }
+  if (length(which(is.nan(Shat) | is.infinite(Shat)))>0) {
+    stop("Shat cannot contain NaN/Inf values")
+  }
+  if (length(which(Shat == 0))>0) {
+    msg = "If it is expected please set Shat to a small positive number to avoid numerical issues."
+    if (length(which(Shat == 0 & Bhat == 0)) > 0)
+      stop(paste("Both Bhat and Shat are zero for some input data. Please check your input.", msg))
+    else stop(paste("Shat contains zero values.", msg))
+  }
   commonV = TRUE
   if(length(dim(V)) == 3){
     commonV = FALSE
@@ -56,25 +74,30 @@ mash_set_data = function (Bhat, Shat = NULL, alpha = 0, df = Inf,
 
   if(commonV){
     check_positive_definite(V)
-  }else{
-    if(dim(V)[3] != nrow(Bhat)){
+  } else {
+    if(dim(V)[3] != nrow(Bhat)) {
       stop('The number of correlation matrices does not match the number of effects')
     }
-    for(i in 1:dim(V)[3]){
+    for(i in 1:dim(V)[3]) {
       check_positive_definite(V[,,i])
     }
   }
 
-  if(dim(V)[1] != ncol(Bhat)){
+  if(dim(V)[1] != ncol(Bhat)) {
     stop('dimension of correlation matrix does not match the number of conditions')
   }
 
-  if(!is.infinite(df)){
-    if(length(df)==1){df = matrix(df,nrow=nrow(Bhat),ncol=ncol(Bhat))}
+  if(!is.infinite(df)) {
+    if (length(df)==1) {
+      df = matrix(df,nrow=nrow(Bhat),ncol=ncol(Bhat))
+    }
     ## Shat = Bhat/Z where Z is the Z score corresponding to a p value from a t test done on (Bhat,Shat_orig,df)
     Shat = Bhat / p2z(2 * pt(-abs(Bhat/Shat), df), Bhat)
   }
-  Shat[which(is.nan(Shat) | is.infinite(Shat))] = 0
+  if (!identical(is.na(Bhat), is.na(Shat))) {
+    stop("Missing data pattern is inconsistent between Bhat and Shat")
+  }
+  na_idx = which(is.na(Bhat))
   # transform data according to alpha
   if (alpha != 0 && !all(Shat == 1)) {
     ## alpha models dependence of effect size on standard error
@@ -86,7 +109,9 @@ mash_set_data = function (Bhat, Shat = NULL, alpha = 0, df = Inf,
   } else {
     Shat_alpha = matrix(1, nrow(Shat), ncol(Shat))
   }
-  Bhat[which(is.nan(Bhat))] = 0
+  Bhat[na_idx] = 0
+  Shat[na_idx] = 1E6
+  Shat_alpha[na_idx] = 1
   data = list(Bhat=Bhat, Shat=Shat, Shat_alpha=Shat_alpha, V=V, commonV = commonV, alpha=alpha)
   class(data) = 'mash'
   return(data)
@@ -95,7 +120,7 @@ mash_set_data = function (Bhat, Shat = NULL, alpha = 0, df = Inf,
 #' @title Update the data object for mash analysis.
 #' @description This function can update two parts of the mash data. The first one is setting the reference group, so the mash data
 #' can be used for commonbaseline analysis. The other one is updating the null correlation matrix.
-#' @param mashdata mash data object containing the Bhat matrix, standard errors, V; created using \code{mash_set_data}
+#' @param mashdata mash data object ontaining the Bhat matrix, standard errors, V; created using \code{mash_set_data}
 #' @param ref the reference group. It could be a number between 1,..., R, R is number of conditions, or the name of reference group. If there is no reference group, it can be the string 'mean'.
 #' @param V an R by R matrix / [R x R x J] array of correlation matrix of error correlations
 #' @return a updated mash data object
