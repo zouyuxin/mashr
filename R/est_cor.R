@@ -1,11 +1,25 @@
 #' @title Estimate null correlations (simple)
-#' @description Estimates a null correlation matrix from data using simple z score threshold
+#'
+#' @description Estimates a null correlation matrix from data using
+#' simple z score threshold
+#'
 #' @param data a mash data object, eg as created by \code{mash_set_data}
+#'
 #' @param z_thresh the z score threshold below which to call an effect null
-#' @param est_cor whether to estimate correlation matrix (TRUE) or the covariance matrix (FALSE).
-#' @details Returns a simple estimate of the correlation matrix (or covariance matrix) among conditions under the null.
-#' Specifically, the simple estimate is the empirical correlation (or covariance) matrix of the z scores
-#' for those effects that have (absolute) z score < z_thresh in all conditions.
+#'
+#' @param est_cor whether to estimate correlation matrix (TRUE) or the
+#' covariance matrix (FALSE).
+#'
+#' @details Returns a simple estimate of the correlation matrix (or
+#' covariance matrix) among conditions under the null.  Specifically,
+#' the simple estimate is the empirical correlation (or covariance)
+#' matrix of the z scores for those effects that have (absolute) z
+#' score < z_thresh in all conditions.
+#'
+#' @examples
+#' simdata = simple_sims(50,5,1)
+#' data = mash_set_data(simdata$Bhat, simdata$Shat)
+#' estimate_null_correlation_simple(data)
 #'
 #' @importFrom stats cov2cor
 #' @importFrom stats cov
@@ -27,52 +41,66 @@ estimate_null_correlation_simple = function(data, z_thresh=2, est_cor = TRUE){
   return(Vhat)
 }
 
-# #' @title compute_null_correlation_lower_bound
-# #' @description Compute a lower bound on the null correlation matrix from data
-# #' @details Assume $$z^j_r = mu^j_r + e_r$$ where $e_1,e_2$ are joint normal with
-# #' variance 1 and some covariance (same as correlation since they are variance 1).
-# #' Then $E((z^j_1 - z^j_2)^2) = E(mu^j_1-mu^j_2)^2 + 2(1-cov(e_1,e_2)) > 2(1-cov(e_1,e_2))$.
-# #' Thus $$cov(e_1,e_2) > 1- 0.5E((z^j_1 - z^j_2)^2)$$ gives a lower bound on the covariance.
-# #'
-# #' @param data Description of this argument goes here.
-# compute_null_correlation_lower_bound = function(data){
-#   R = n_conditions(data)
-#   z = data$Bhat/data$Shat
-#   lb = matrix(0,ncol=R,nrow=R) # the lower bound
-#   for(i in 1:(R-1)){
-#     for(j in (i+1):R){
-#       lb[i,j] = 1-0.5*mean((z[,i]-z[,j])^2)
-#       lb[j,i] = lb[i,j] #lb is symmetric
-#     }
-#   }
-#   return(lb)
-# }
-
 #' @title Estimate null correlations
+#'
 #' @description Estimates a null correlation matrix from data
+#'
 #' @param data a mash data object, eg as created by \code{mash_set_data}
+#'
 #' @param Ulist a list of covariance matrices to use
-#' @param init the initial value for the null correlation. If it is not given, we use result from \code{estimate_null_correlation_adhoc}
+#'
+#' @param init the initial value for the null correlation. If it is
+#' not given, we use result from
+#' \code{estimate_null_correlation_adhoc}
+#'
 #' @param max_iter maximum number of iterations to perform
+#'
 #' @param tol convergence tolerance
-#' @param est_cor whether to estimate correlation matrix (TRUE) or the covariance matrix (FALSE)
-#' @param track_fit add an attribute \code{trace} to output that saves current values of all iterations
+#'
+#' @param est_cor whether to estimate correlation matrix (TRUE) or the
+#' covariance matrix (FALSE)
+#'
+#' @param track_fit add an attribute \code{trace} to output that saves
+#' current values of all iterations
+#'
 #' @param prior indicates what penalty to use on the likelihood, if any
-#' @param details whether to return details of the model, if it is TRUE, the number of iterations and the value of objective functions will be returned
+#'
+#' @param details whether to return details of the model, if it is
+#' TRUE, the number of iterations and the value of objective functions
+#' will be returned
+#'
 #' @param ... other parameters pass to \code{mash}
-#' @details Returns the estimated correlation matrix (or covariance matrix) among conditions under the null.
-#' The correlation (or covariance) matrix is estimated by maximum likelihood.
-#' Specifically, the unknown correlation/covariance matrix V and the unknown weights are estimated iteratively.
-#' The unknown correlation/covariance matrix V is estimated using the posterior second moment of the noise.
-#' The unknown weights pi is estimated by maximum likelihood, which is a convex problem.
 #'
-#' Warning: This method could take some time.
-#' The \code{\link{estimate_null_correlation_simple}} gives a quick approximation for the null correlation (or covariance) matrix.
+#' @details Returns the estimated correlation matrix (or covariance
+#' matrix) among conditions under the null.  The correlation (or
+#' covariance) matrix is estimated by maximum likelihood.
+#' Specifically, the unknown correlation/covariance matrix V and the
+#' unknown weights are estimated iteratively.  The unknown
+#' correlation/covariance matrix V is estimated using the posterior
+#' second moment of the noise.  The unknown weights pi is estimated by
+#' maximum likelihood, which is a convex problem.
 #'
-#' @return the estimated correlation (or covariance) matrix and the fitted mash model
-#' \cr
+#' Warning: This method could take some time.  The
+#' \code{\link{estimate_null_correlation_simple}} gives a quick
+#' approximation for the null correlation (or covariance) matrix.
+#'
+#' @return the estimated correlation (or covariance) matrix and the
+#' fitted mash model \cr
+#'
 #' \item{V}{estimated correlation (or covariance) matrix}
+#'
 #' \item{mash.model}{fitted mash model}
+#'
+#' @examples
+#' simdata = simple_sims(100,5,1)
+#' m.1by1 = mash_1by1(mash_set_data(simdata$Bhat,simdata$Shat))
+#' strong.subset = get_significant_results(m.1by1,0.05)
+#' random.subset = sample(1:nrow(simdata$Bhat),20)
+#' data.strong = mash_set_data(simdata$Bhat[strong.subset,], simdata$Shat[strong.subset,])
+#' data.tmp = mash_set_data(simdata$Bhat[random.subset,], simdata$Shat[random.subset,])
+#' U_pca = cov_pca(data.strong, 3)
+#' U_ed = cov_ed(data.strong, U_pca)
+#' Vhat = estimate_null_correlation(data.tmp, U_ed)
 #' @importFrom stats cov2cor
 #'
 #' @export
@@ -150,11 +178,6 @@ estimate_null_correlation = function(data, Ulist, init, max_iter = 30, tol=1,
   }
 }
 
-# penalty <- function(prior, pi_s){
-#   subset <- (prior != 1.0)
-#   sum((prior-1)[subset]*log(pi_s[subset]))
-# }
-
 #' @importFrom plyr aaply laply
 E_V = function(data, m.model){
   J = n_effects(data)
@@ -162,7 +185,7 @@ E_V = function(data, m.model){
   Shat = data$Shat * data$Shat_alpha
   post.m.shat = m.model$result$PosteriorMean / Shat
   post.sec.shat = laply(1:J, function(i) (t(m.model$result$PosteriorCov[,,i]/Shat[i,])/Shat[i,]) +
-                          tcrossprod(post.m.shat[i,])) # Jx2x2 array
+                          tcrossprod(post.m.shat[i,])) # JxRxR array
   temp1 = crossprod(Z)
   temp2 = crossprod(post.m.shat, Z) + crossprod(Z, post.m.shat)
   temp3 = unname(aaply(post.sec.shat, c(2,3), sum))

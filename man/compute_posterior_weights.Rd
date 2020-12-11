@@ -2,7 +2,8 @@
 % Please edit documentation in R/posterior.R
 \name{compute_posterior_weights}
 \alias{compute_posterior_weights}
-\title{compute posterior probabilities}
+\title{Compute posterior probabilities that each effect came from
+  each component}
 \usage{
 compute_posterior_weights(pi, lik_mat)
 }
@@ -12,8 +13,12 @@ compute_posterior_weights(pi, lik_mat)
 \item{lik_mat}{a JxK matrix of likelihoods}
 }
 \value{
-a JxK matrix of posterior probabilities, the jth row contains posteriors for jth effect
+a JxK matrix of posterior probabilities, the jth row
+  contains posteriors for jth effect
 }
 \description{
-computes posterior probabilities that each effect came from each component
+This is an internal (non-exported) function. This help
+  page provides additional documentation mainly intended for
+  developers and expert users.
 }
+\keyword{internal}

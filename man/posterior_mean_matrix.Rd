@@ -11,13 +11,21 @@ posterior_mean_matrix(Bhat, Vinv, U1)
 
 \item{Vinv}{R x R inverse covariance matrix for the likelihood}
 
-\item{U1}{R x R posterior covariance matrix, computed using posterior_cov}
+\item{U1}{R x R posterior covariance matrix, computed using
+posterior_cov}
 }
 \value{
 R vector of posterior mean
 }
 \description{
-Computes posterior mean under multivariate normal model for each row of matrix Bhat.
-Note that if bhat is N_R(b,V) and b is N_R(0,U) then b|bhat N_R(mu1,U1).
-This function returns a matrix with jth row equal to mu1(bhat) for bhat= Bhat[j,].
+This is an internal (non-exported) function. This help
+  page provides additional documentation mainly intended for
+  developers and expert users.
 }
+\details{
+Computes posterior mean under multivariate normal model
+  for each row of matrix Bhat. Note that if bhat is N_R(b,V) and b
+  is N_R(0,U) then b|bhat N_R(mu1,U1). This function returns a
+  matrix with jth row equal to mu1(bhat) for bhat= Bhat[j,].
+}
+\keyword{internal}

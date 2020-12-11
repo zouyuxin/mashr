@@ -15,5 +15,12 @@ posterior_cov(Vinv, U)
 R x R posterior covariance matrix
 }
 \description{
-If bhat is N(b,V) and b is N(0,U) then b|bhat N(mu1,U1). This function returns U1.
+This is an internal (non-exported) function. This help
+  page provides additional documentation mainly intended for
+  developers and expert users.
 }
+\details{
+If bhat is N(b,V) and b is N(0,U) then b|bhat N(mu1,U1). This
+  function returns U1.
+}
+\keyword{internal}

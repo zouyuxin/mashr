@@ -22,7 +22,7 @@ calc_lik_matrix(
 likelihoods.}
 
 \item{mc.cores}{The argument supplied to
-\code{\link[parallel]{mclapply}} specifying the number of cores
+\code{openmp} specifying the number of cores
 to use. Note that this is only has an effect for the Rcpp version.}
 
 \item{algorithm.version}{Indicate R or Rcpp version}
@@ -33,5 +33,10 @@ J x P matrix of multivariate normal likelihoods, p(bhat |
 }
 \description{
 computes matrix of condition likelihoods for each of J
-    rows of Bhat for each of P prior covariances.
+  rows of Bhat for each of P prior covariances.
+
+  This is an internal (non-exported) function. This help page
+  provides additional documentation mainly intended for developers
+  and expert users.
 }
+\keyword{internal}
